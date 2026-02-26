@@ -8,40 +8,63 @@ import {
 } from 'lucide-react'
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
+// Tailwind не умеет работать с динамическими JS-значениями в className.
+// Решение: задаём CSS custom properties (var(--...)) на корневом div,
+// а Tailwind используем для spacing / layout / sizing / typography.
 export const ThemeContext = createContext({ dark: false, toggleDark: () => {} })
 
-const T = {
+const themeVars = {
   light: {
-    bg: '#fff', surface: '#faf8f5', surfaceAlt: '#f5f2ee',
-    border: '#eee', borderMid: '#e8e3de',
-    text: '#111', textMuted: '#555', textFaint: '#aaa',
-    inputBg: '#fff', cardBg: '#f5f2ee',
-    btnPrimary: '#222', btnPrimaryText: '#fff',
-    btnHover: '#111',
-    icon: '#555', iconHover: '#222',
-    tag: '#e8e3de', tagText: '#999',
-    saleBadge: '#c0392b', heartActive: '#c0392b',
-    reviewBorder: '#e8e3de', reviewBg: '#faf8f5',
-    verified: '#7daa82', star: '#e0b96e',
-    toastBg: '#222', toastText: '#fff',
-    overlayBg: 'rgba(0,0,0,0.45)',
-    headerBg: '#fff',
+    '--bg':            '#ffffff',
+    '--surface':       '#faf8f5',
+    '--border':        '#eeeeee',
+    '--border-mid':    '#e8e3de',
+    '--text':          '#111111',
+    '--text-muted':    '#555555',
+    '--text-faint':    '#aaaaaa',
+    '--input-bg':      '#ffffff',
+    '--card-bg':       '#f5f2ee',
+    '--btn':           '#222222',
+    '--btn-text':      '#ffffff',
+    '--btn-hover':     '#111111',
+    '--icon':          '#555555',
+    '--tag':           '#e8e3de',
+    '--tag-text':      '#999999',
+    '--sale':          '#c0392b',
+    '--heart':         '#c0392b',
+    '--review-bg':     '#faf8f5',
+    '--review-border': '#e8e3de',
+    '--verified':      '#7daa82',
+    '--star':          '#e0b96e',
+    '--toast-bg':      '#222222',
+    '--toast-text':    '#ffffff',
+    '--overlay':       'rgba(0,0,0,0.45)',
   },
   dark: {
-    bg: '#0f0f0f', surface: '#1a1a1a', surfaceAlt: '#1c1c1c',
-    border: '#252525', borderMid: '#2a2a2a',
-    text: '#f0ede8', textMuted: '#b0a898', textFaint: '#666',
-    inputBg: '#161616', cardBg: '#1c1c1c',
-    btnPrimary: '#f0ede8', btnPrimaryText: '#111',
-    btnHover: '#ddd',
-    icon: '#b0a898', iconHover: '#f0ede8',
-    tag: '#2a2a2a', tagText: '#888',
-    saleBadge: '#c0392b', heartActive: '#e05c5c',
-    reviewBorder: '#2a2a2a', reviewBg: '#1a1a1a',
-    verified: '#7daa82', star: '#e0b96e',
-    toastBg: '#f0ede8', toastText: '#111',
-    overlayBg: 'rgba(0,0,0,0.7)',
-    headerBg: '#0f0f0f',
+    '--bg':            '#0f0f0f',
+    '--surface':       '#1a1a1a',
+    '--border':        '#252525',
+    '--border-mid':    '#2a2a2a',
+    '--text':          '#f0ede8',
+    '--text-muted':    '#b0a898',
+    '--text-faint':    '#666666',
+    '--input-bg':      '#161616',
+    '--card-bg':       '#1c1c1c',
+    '--btn':           '#f0ede8',
+    '--btn-text':      '#111111',
+    '--btn-hover':     '#dddddd',
+    '--icon':          '#b0a898',
+    '--tag':           '#2a2a2a',
+    '--tag-text':      '#888888',
+    '--sale':          '#c0392b',
+    '--heart':         '#e05c5c',
+    '--review-bg':     '#1a1a1a',
+    '--review-border': '#2a2a2a',
+    '--verified':      '#7daa82',
+    '--star':          '#e0b96e',
+    '--toast-bg':      '#f0ede8',
+    '--toast-text':    '#111111',
+    '--overlay':       'rgba(0,0,0,0.7)',
   },
 }
 
@@ -62,6 +85,7 @@ const FOOTER_LINKS = {
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
 const formatPrice = p => p.toLocaleString('ru-RU') + ' сум'
+const serif = "'Cormorant Garamond', Georgia, serif"
 
 function getProductImages(p) {
   if (!p) return []
@@ -69,26 +93,23 @@ function getProductImages(p) {
   return [p.image, p.image2, p.image3].filter(Boolean)
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
+// ─── Accordion ────────────────────────────────────────────────────────────────
 function Accordion({ title, children, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen)
-  const { dark } = useContext(ThemeContext)
-  const tk = dark ? T.dark : T.light
-
   return (
-    <div style={{ borderBottom: `1px solid ${tk.border}` }}>
-      <button onClick={() => setOpen(o => !o)} style={{
-        width: '100%', background: 'none', border: 'none', cursor: 'pointer',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '14px 0', fontFamily: "'Cormorant Garamond', Georgia, serif",
-        fontSize: 12, letterSpacing: '0.08em', color: tk.text, fontWeight: 600,
-      }}>
+    <div className="border-b" style={{ borderColor: 'var(--border)' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between py-3.5 bg-transparent border-none cursor-pointer text-xs font-semibold tracking-widest"
+        style={{ fontFamily: serif, color: 'var(--text)' }}
+      >
         {title}
-        {open ? <ChevronUp size={14} color={tk.textFaint} /> : <ChevronDown size={14} color={tk.textFaint} />}
+        {open
+          ? <ChevronUp size={14} style={{ color: 'var(--text-faint)' }} />
+          : <ChevronDown size={14} style={{ color: 'var(--text-faint)' }} />}
       </button>
-      <div style={{ maxHeight: open ? 400 : 0, overflow: 'hidden', transition: 'max-height 0.35s cubic-bezier(0.4,0,0.2,1)' }}>
-        <div style={{ paddingBottom: 16, fontSize: 13, color: tk.textMuted, lineHeight: 1.75, fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+      <div className="overflow-hidden transition-all duration-300" style={{ maxHeight: open ? 400 : 0 }}>
+        <div className="pb-4 text-[13px] leading-relaxed" style={{ fontFamily: serif, color: 'var(--text-muted)' }}>
           {children}
         </div>
       </div>
@@ -96,6 +117,7 @@ function Accordion({ title, children, defaultOpen = false }) {
   )
 }
 
+// ─── Lightbox ─────────────────────────────────────────────────────────────────
 function Lightbox({ images, activeIndex, onClose }) {
   const [idx, setIdx] = useState(activeIndex)
   const prev = () => setIdx(i => (i - 1 + images.length) % images.length)
@@ -108,54 +130,53 @@ function Lightbox({ images, activeIndex, onClose }) {
   }, [images.length])
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <button onClick={onClose} style={{ position: 'absolute', top: 24, right: 24, background: 'none', border: 'none', cursor: 'pointer', color: '#fff' }}><X size={24} /></button>
-      <button onClick={e => { e.stopPropagation(); prev() }} style={{ position: 'absolute', left: 24, background: 'none', border: 'none', cursor: 'pointer', color: '#fff' }}><ChevronLeft size={32} /></button>
+    <div onClick={onClose} className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/90">
+      <button onClick={onClose} className="absolute top-6 right-6 bg-transparent border-none cursor-pointer text-white"><X size={24} /></button>
+      <button onClick={e => { e.stopPropagation(); prev() }} className="absolute left-6 bg-transparent border-none cursor-pointer text-white"><ChevronLeft size={32} /></button>
       <img src={images[idx]} alt="" onClick={e => e.stopPropagation()}
-        style={{ maxHeight: '90vh', maxWidth: '80vw', objectFit: 'contain' }}
+        className="max-h-[90vh] max-w-[80vw] object-contain"
         onError={e => { e.target.src = 'https://placehold.co/800x1000/222/888?text=Фото' }} />
-      <button onClick={e => { e.stopPropagation(); next() }} style={{ position: 'absolute', right: 24, background: 'none', border: 'none', cursor: 'pointer', color: '#fff' }}><ChevronRight size={32} /></button>
-      <div style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
+      <button onClick={e => { e.stopPropagation(); next() }} className="absolute right-6 bg-transparent border-none cursor-pointer text-white"><ChevronRight size={32} /></button>
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5">
         {images.map((_, i) => (
           <span key={i} onClick={e => { e.stopPropagation(); setIdx(i) }}
-            style={{ width: 6, height: 6, borderRadius: '50%', background: i === idx ? '#fff' : 'rgba(255,255,255,0.4)', cursor: 'pointer', display: 'inline-block' }} />
+            className="w-1.5 h-1.5 rounded-full inline-block cursor-pointer"
+            style={{ background: i === idx ? '#fff' : 'rgba(255,255,255,0.4)' }} />
         ))}
       </div>
     </div>
   )
 }
 
+// ─── SizeGuideModal ───────────────────────────────────────────────────────────
 function SizeGuideModal({ onClose }) {
-  const { dark } = useContext(ThemeContext)
-  const tk = dark ? T.dark : T.light
   const rows = [['XS','80–84','60–64','86–90'],['S','84–88','64–68','90–94'],['M','88–92','68–72','94–98'],['L','92–96','72–76','98–102'],['XL','96–100','76–80','102–106']]
-
   return (
-    <div style={{ position: 'fixed', inset: 0, background: tk.overlayBg, zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{ background: tk.bg, width: 480, maxWidth: '95vw', maxHeight: '85vh', overflowY: 'auto', fontFamily: "'Cormorant Garamond', Georgia, serif", padding: '28px 32px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: '0.06em', color: tk.text }}>ТАБЛИЦА РАЗМЕРОВ</span>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: tk.textFaint }}><X size={18} /></button>
+    <div onClick={onClose} className="fixed inset-0 z-[1500] flex items-center justify-center" style={{ background: 'var(--overlay)' }}>
+      <div onClick={e => e.stopPropagation()} className="w-[480px] max-w-[95vw] max-h-[85vh] overflow-y-auto p-8" style={{ fontFamily: serif, background: 'var(--bg)' }}>
+        <div className="flex items-center justify-between mb-5">
+          <span className="text-base font-semibold tracking-widest" style={{ color: 'var(--text)' }}>ТАБЛИЦА РАЗМЕРОВ</span>
+          <button onClick={onClose} className="bg-transparent border-none cursor-pointer" style={{ color: 'var(--text-faint)' }}><X size={18} /></button>
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <table className="w-full border-collapse text-[13px]">
           <thead>
-            <tr style={{ borderBottom: `2px solid ${tk.text}` }}>
+            <tr className="border-b-2" style={{ borderColor: 'var(--text)' }}>
               {['Размер', 'Грудь (см)', 'Талия (см)', 'Бёдра (см)'].map(h => (
-                <th key={h} style={{ textAlign: 'left', padding: '8px 0', letterSpacing: '0.04em', fontSize: 11, color: tk.textFaint }}>{h}</th>
+                <th key={h} className="text-left py-2 text-[11px] tracking-wider font-normal" style={{ color: 'var(--text-faint)' }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.map(row => (
-              <tr key={row[0]} style={{ borderBottom: `1px solid ${tk.border}` }}>
+              <tr key={row[0]} className="border-b" style={{ borderColor: 'var(--border)' }}>
                 {row.map((cell, i) => (
-                  <td key={i} style={{ padding: '10px 0', color: i === 0 ? tk.text : tk.textMuted, fontWeight: i === 0 ? 600 : 400 }}>{cell}</td>
+                  <td key={i} className="py-2.5" style={{ color: i === 0 ? 'var(--text)' : 'var(--text-muted)', fontWeight: i === 0 ? 600 : 400 }}>{cell}</td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
-        <p style={{ marginTop: 16, fontSize: 12, color: tk.textFaint, lineHeight: 1.6 }}>
+        <p className="mt-4 text-xs leading-relaxed" style={{ color: 'var(--text-faint)' }}>
           Если вы находитесь между размерами, рекомендуем выбрать больший.
         </p>
       </div>
@@ -163,69 +184,70 @@ function SizeGuideModal({ onClose }) {
   )
 }
 
+// ─── Stars ────────────────────────────────────────────────────────────────────
 function Stars({ rating, size = 11 }) {
-  const { dark } = useContext(ThemeContext)
-  const tk = dark ? T.dark : T.light
   return (
-    <div style={{ display: 'flex', gap: 2 }}>
-      {[1,2,3,4,5].map(s => <Star key={s} size={size} fill={s <= rating ? tk.star : 'none'} color={tk.star} />)}
+    <div className="flex gap-0.5">
+      {[1,2,3,4,5].map(s => <Star key={s} size={size} fill={s <= rating ? 'var(--star)' : 'none'} color="var(--star)" />)}
     </div>
   )
 }
 
+// ─── Footer ───────────────────────────────────────────────────────────────────
 function Footer() {
-  const { dark } = useContext(ThemeContext)
-  const tk = dark ? T.dark : T.light
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
-
-  function handleSubscribe() {
+  const handleSubscribe = () => {
     if (email.trim()) { setSubscribed(true); setEmail(''); setTimeout(() => setSubscribed(false), 3000) }
   }
 
   return (
-    <footer style={{ borderTop: `1px solid ${tk.borderMid}`, padding: '48px 40px 0', fontFamily: "'Cormorant Garamond', Georgia, serif", marginTop: 48, background: tk.bg }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr) 180px 300px', gap: 28, paddingBottom: 40, borderBottom: `1px solid ${tk.border}` }}>
+    <footer className="mt-12 pt-12" style={{ borderTop: '1px solid var(--border-mid)', fontFamily: serif, background: 'var(--bg)' }}>
+      <div className="grid gap-7 px-10 pb-10" style={{ gridTemplateColumns: 'repeat(3, 1fr) 180px 300px', borderBottom: '1px solid var(--border)' }}>
         {Object.entries(FOOTER_LINKS).map(([title, links]) => (
           <div key={title}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', color: tk.text, marginBottom: 16 }}>{title}</div>
+            <div className="text-[11px] font-semibold tracking-[0.1em] mb-4" style={{ color: 'var(--text)' }}>{title}</div>
             {links.map(link => (
-              <div key={link} style={{ fontSize: 12, color: tk.textMuted, marginBottom: 10, cursor: 'pointer', transition: 'color 0.2s' }}
-                onMouseEnter={e => e.target.style.color = tk.text}
-                onMouseLeave={e => e.target.style.color = tk.textMuted}>{link}</div>
+              <div key={link} className="text-xs mb-2.5 cursor-pointer transition-colors duration-200 leading-snug"
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={e => e.target.style.color = 'var(--text)'}
+                onMouseLeave={e => e.target.style.color = 'var(--text-muted)'}>{link}</div>
             ))}
           </div>
         ))}
         <div>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', color: tk.text, marginBottom: 16 }}>ОПЛАТА</div>
+          <div className="text-[11px] font-semibold tracking-[0.1em] mb-4" style={{ color: 'var(--text)' }}>ОПЛАТА</div>
           {['Uzum', 'Click', 'Payme'].map(p => (
-            <div key={p} style={{ border: `1px solid ${tk.borderMid}`, borderRadius: 3, padding: '5px 12px', fontSize: 12, color: tk.textMuted, background: tk.surface, display: 'inline-block', marginBottom: 8, marginRight: 4 }}>{p}</div>
+            <div key={p} className="inline-block text-xs px-3 py-1 rounded-sm mr-1 mb-2"
+              style={{ border: '1px solid var(--border-mid)', color: 'var(--text-muted)', background: 'var(--surface)' }}>{p}</div>
           ))}
         </div>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', color: tk.text, marginBottom: 10 }}>ПОДПИСКА</div>
-          <div style={{ fontSize: 12, color: tk.textMuted, lineHeight: 1.7, marginBottom: 14 }}>Оставляй номер и всегда будь в курсе последних новостей.</div>
-          {subscribed ? (
-            <div style={{ background: tk.surface, padding: '10px 14px', fontSize: 12, color: tk.textMuted }}>✓ Вы успешно подписались!</div>
-          ) : (
-            <div style={{ display: 'flex' }}>
-              <input value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSubscribe()} placeholder="Телефон или email"
-                style={{ flex: 1, border: `1px solid ${tk.border}`, borderRight: 'none', padding: '8px 12px', fontSize: 11, fontFamily: 'inherit', outline: 'none', background: tk.inputBg, color: tk.text }} />
-              <button onClick={handleSubscribe} style={{ background: tk.btnPrimary, color: tk.btnPrimaryText, border: 'none', padding: '8px 16px', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}>OK</button>
-            </div>
-          )}
+          <div className="text-[11px] font-semibold tracking-[0.1em] mb-2.5" style={{ color: 'var(--text)' }}>ПОДПИСКА</div>
+          <div className="text-xs leading-7 mb-3.5" style={{ color: 'var(--text-muted)' }}>Оставляй номер и всегда будь в курсе последних новостей.</div>
+          {subscribed
+            ? <div className="text-xs px-3.5 py-2.5" style={{ background: 'var(--surface)', color: 'var(--text-muted)' }}>✓ Вы успешно подписались!</div>
+            : <div className="flex">
+                <input value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSubscribe()}
+                  placeholder="Телефон или email"
+                  className="flex-1 text-[11px] px-3 py-2 outline-none border-r-0"
+                  style={{ border: '1px solid var(--border)', background: 'var(--input-bg)', color: 'var(--text)', fontFamily: 'inherit' }} />
+                <button onClick={handleSubscribe} className="text-[11px] px-4 py-2 cursor-pointer border-none"
+                  style={{ background: 'var(--btn)', color: 'var(--btn-text)', fontFamily: 'inherit' }}>OK</button>
+              </div>
+          }
         </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 0', flexWrap: 'wrap', gap: 12 }}>
-        <div style={{ fontSize: 11, color: tk.textFaint }}>© 2026 Selfie. Все права защищены.</div>
-        <div style={{ display: 'flex', gap: 20 }}>
+      <div className="flex items-center justify-between flex-wrap gap-3 py-5 px-10">
+        <div className="text-[11px]" style={{ color: 'var(--text-faint)' }}>© 2026 Selfie. Все права защищены.</div>
+        <div className="flex gap-5">
           {[Facebook, Instagram, Send, Youtube].map((Icon, i) => (
-            <Icon key={i} size={17} style={{ cursor: 'pointer', color: tk.icon, transition: 'color 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.color = tk.text}
-              onMouseLeave={e => e.currentTarget.style.color = tk.icon} />
+            <Icon key={i} size={17} className="cursor-pointer transition-colors duration-200" style={{ color: 'var(--icon)' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--icon)'} />
           ))}
         </div>
-        <div style={{ fontSize: 15, fontWeight: 600, color: tk.text }}>+998 (55) 508 00 60</div>
+        <div className="text-[15px] font-semibold" style={{ color: 'var(--text)' }}>+998 (55) 508 00 60</div>
       </div>
     </footer>
   )
@@ -236,17 +258,12 @@ export default function ProductPage() {
   const { id: productId } = useParams()
   const navigate = useNavigate()
 
-  // Theme
   const [dark, setDark] = useState(false)
-  const tk = dark ? T.dark : T.light
-
-  // Data
   const [product, setProduct] = useState(null)
   const [allProducts, setAllProducts] = useState([])
   const [fetchLoading, setFetchLoading] = useState(true)
   const [fetchError, setFetchError] = useState(null)
 
-  // UI state
   const [activeImg, setActiveImg] = useState(0)
   const [selectedSize, setSelectedSize] = useState('')
   const [quantity, setQuantity] = useState(1)
@@ -272,7 +289,9 @@ export default function ProductPage() {
 
   const images = product ? getProductImages(product) : []
   const discount = product?.oldPrice ? Math.round((1 - product.price / product.oldPrice) * 100) : null
-  const related = product ? allProducts.filter(p => p.category === product.category && String(p.id) !== String(productId)).slice(0, 4) : []
+  const related = product
+    ? allProducts.filter(p => p.category === product.category && String(p.id) !== String(productId)).slice(0, 4)
+    : []
 
   function handleAddToCart() {
     if (!selectedSize) { setSizeError(true); setTimeout(() => setSizeError(false), 2000); return }
@@ -280,31 +299,33 @@ export default function ProductPage() {
     setTimeout(() => setAddedToCart(false), 2200)
   }
 
-  // ── Loading / Error states ──
   if (fetchLoading) return (
-    <div style={{ minHeight: '100vh', background: tk.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Cormorant Garamond', Georgia, serif", color: tk.textFaint, gap: 12 }}>
-      <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} />
-      <span style={{ fontSize: 14, letterSpacing: '0.06em' }}>Загружаем товар...</span>
-      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+    <div className="min-h-screen flex items-center justify-center gap-3" style={{ background: dark ? '#0f0f0f' : '#fff', fontFamily: serif, color: '#aaa' }}>
+      <Loader2 size={20} className="animate-spin" />
+      <span className="text-sm tracking-widest">Загружаем товар...</span>
     </div>
   )
 
   if (fetchError || !product) return (
-    <div style={{ minHeight: '100vh', background: tk.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: "'Cormorant Garamond', Georgia, serif", color: tk.textFaint, gap: 16 }}>
-      <div style={{ fontSize: 36 }}>⚠️</div>
-      <div style={{ fontSize: 14 }}>{fetchError || 'Товар не найден'}</div>
-      <button onClick={() => navigate('/products')} style={{ background: tk.btnPrimary, color: tk.btnPrimaryText, border: 'none', padding: '10px 28px', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', letterSpacing: '0.06em' }}>← НАЗАД</button>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: dark ? '#0f0f0f' : '#fff', fontFamily: serif, color: '#aaa' }}>
+      <div className="text-4xl">⚠️</div>
+      <div className="text-sm">{fetchError || 'Товар не найден'}</div>
+      <button onClick={() => navigate('/products')} className="text-xs px-7 py-2.5 cursor-pointer border-none tracking-widest"
+        style={{ background: dark ? '#f0ede8' : '#222', color: dark ? '#111' : '#fff', fontFamily: serif }}>← НАЗАД</button>
     </div>
   )
 
   return (
     <ThemeContext.Provider value={{ dark, toggleDark: () => setDark(d => !d) }}>
-      <div style={{ minHeight: '100vh', background: tk.bg, fontFamily: "'Cormorant Garamond', Georgia, serif", transition: 'background 0.3s', color: tk.text }}>
+      {/* CSS vars applied here — все дочерние элементы получают доступ через var(--...) */}
+      <div
+        className="min-h-screen transition-colors duration-300"
+        style={{ ...themeVars[dark ? 'dark' : 'light'], background: 'var(--bg)', color: 'var(--text)', fontFamily: serif }}
+      >
         <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet" />
         <style>{`
           @keyframes fadeInUp { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
           @keyframes cartPop  { 0%{transform:scale(1)} 40%{transform:scale(1.06)} 100%{transform:scale(1)} }
-          @keyframes spin     { to { transform:rotate(360deg) } }
           .prod-thumb:hover { opacity:1 !important }
           .related-card:hover img { transform:scale(1.05) !important }
         `}</style>
@@ -314,72 +335,71 @@ export default function ProductPage() {
 
         {/* Toast */}
         {addedToCart && (
-          <div style={{ position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)', background: tk.toastBg, color: tk.toastText, padding: '12px 28px', fontSize: 12, letterSpacing: '0.08em', zIndex: 9999, display: 'flex', alignItems: 'center', gap: 10, boxShadow: '0 8px 30px rgba(0,0,0,0.2)', animation: 'fadeInUp 0.25s ease', whiteSpace: 'nowrap' }}>
+          <div className="fixed bottom-7 left-1/2 -translate-x-1/2 flex items-center gap-2.5 px-7 py-3 text-xs tracking-widest z-[9999] whitespace-nowrap shadow-2xl"
+            style={{ background: 'var(--toast-bg)', color: 'var(--toast-text)', animation: 'fadeInUp 0.25s ease' }}>
             <ShoppingBag size={14} /> Добавлено в корзину
           </div>
         )}
 
         {/* Top bar */}
-        <div style={{ padding: '12px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${tk.border}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <button onClick={() => navigate('/products')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, letterSpacing: '0.06em', color: tk.textFaint, fontFamily: 'inherit', padding: 0, transition: 'color 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.color = tk.text}
-              onMouseLeave={e => e.currentTarget.style.color = tk.textFaint}>
+        <div className="flex items-center justify-between px-10 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
+          <div className="flex items-center gap-4">
+            <button onClick={() => navigate('/products')}
+              className="flex items-center gap-1.5 text-[11px] tracking-widest bg-transparent border-none cursor-pointer transition-colors duration-200 p-0"
+              style={{ color: 'var(--text-faint)', fontFamily: serif }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-faint)'}>
               <ArrowLeft size={13} /> НАЗАД
             </button>
-            <span style={{ color: tk.border }}>|</span>
-            <span style={{ fontSize: 11, color: tk.textFaint, letterSpacing: '0.04em' }}>
+            <span style={{ color: 'var(--border-mid)' }}>|</span>
+            <span className="text-[11px] tracking-wider" style={{ color: 'var(--text-faint)' }}>
               ГЛАВНАЯ / {(product.category || '').toUpperCase()} / {product.name.toUpperCase()}
             </span>
           </div>
-          {/* Dark mode toggle */}
-          <button onClick={() => setDark(d => !d)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: tk.icon, display: 'flex', padding: 0, transition: 'color 0.2s' }}>
+          <button onClick={() => setDark(d => !d)} className="bg-transparent border-none cursor-pointer flex p-0 transition-colors duration-200" style={{ color: 'var(--icon)' }}>
             {dark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         </div>
 
         {/* Main grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 440px', maxWidth: 1280, margin: '0 auto' }}>
+        <div className="grid max-w-[1280px] mx-auto" style={{ gridTemplateColumns: '1fr 440px' }}>
 
           {/* Left — Images */}
-          <div style={{ display: 'flex', gap: 0, padding: '32px 32px 32px 40px' }}>
+          <div className="flex p-8 pl-10">
             {/* Thumbnails */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginRight: 16, flexShrink: 0 }}>
+            <div className="flex flex-col gap-2 mr-4 shrink-0">
               {images.map((img, i) => (
-                <div key={i} className="prod-thumb" onClick={() => setActiveImg(i)} style={{
-                  width: 72, height: 90, overflow: 'hidden', cursor: 'pointer', background: tk.cardBg,
-                  border: activeImg === i ? `1.5px solid ${tk.text}` : '1.5px solid transparent',
-                  opacity: activeImg === i ? 1 : 0.55, transition: 'all 0.2s',
-                }}>
-                  <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                <div key={i} className="prod-thumb w-[72px] h-[90px] overflow-hidden cursor-pointer transition-all duration-200"
+                  onClick={() => setActiveImg(i)}
+                  style={{ background: 'var(--card-bg)', border: activeImg === i ? '1.5px solid var(--text)' : '1.5px solid transparent', opacity: activeImg === i ? 1 : 0.55 }}>
+                  <img src={img} alt="" className="w-full h-full object-cover"
                     onError={e => { e.target.src = 'https://placehold.co/72x90/f5f2ee/888?text=Фото' }} />
                 </div>
               ))}
             </div>
 
             {/* Main image */}
-            <div style={{ flex: 1, position: 'relative', background: tk.cardBg, overflow: 'hidden' }}>
+            <div className="flex-1 relative overflow-hidden" style={{ background: 'var(--card-bg)' }}>
               {images.length > 0 && (
-                <img src={images[activeImg]} alt={product.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', maxHeight: 680, display: 'block' }}
+                <img src={images[activeImg]} alt={product.name} className="w-full h-full object-cover block" style={{ maxHeight: 680 }}
                   onError={e => { e.target.src = 'https://placehold.co/700x900/f5f2ee/888?text=Фото' }} />
               )}
               {discount && (
-                <div style={{ position: 'absolute', top: 16, left: 16, background: tk.saleBadge, color: '#fff', fontSize: 11, padding: '3px 8px', letterSpacing: '0.06em', fontWeight: 600 }}>
+                <div className="absolute top-4 left-4 text-white text-[11px] px-2 py-0.5 font-semibold tracking-widest" style={{ background: 'var(--sale)' }}>
                   −{discount}%
                 </div>
               )}
-              <button onClick={() => setLightboxOpen(true)} style={{ position: 'absolute', bottom: 16, right: 16, background: 'rgba(255,255,255,0.9)', border: 'none', cursor: 'pointer', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}>
+              <button onClick={() => setLightboxOpen(true)} className="absolute bottom-4 right-4 bg-white/90 border-none cursor-pointer w-9 h-9 flex items-center justify-center shadow-md">
                 <ZoomIn size={15} color="#555" />
               </button>
               {images.length > 1 && (
                 <>
                   <button onClick={() => setActiveImg(i => (i - 1 + images.length) % images.length)}
-                    style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.8)', border: 'none', cursor: 'pointer', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 bg-white/80 border-none cursor-pointer w-[30px] h-[30px] flex items-center justify-center">
                     <ChevronLeft size={14} />
                   </button>
                   <button onClick={() => setActiveImg(i => (i + 1) % images.length)}
-                    style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.8)', border: 'none', cursor: 'pointer', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-white/80 border-none cursor-pointer w-[30px] h-[30px] flex items-center justify-center">
                     <ChevronRight size={14} />
                   </button>
                 </>
@@ -388,132 +408,133 @@ export default function ProductPage() {
           </div>
 
           {/* Right — Details */}
-          <div style={{ padding: '32px 40px 32px 0', display: 'flex', flexDirection: 'column', position: 'sticky', top: 56, alignSelf: 'start' }}>
+          <div className="flex flex-col pr-10 pt-8 pb-8 sticky top-14 self-start">
+
             {/* Tags */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-              <span style={{ fontSize: 10, letterSpacing: '0.1em', color: tk.tagText, border: `1px solid ${tk.tag}`, padding: '3px 10px' }}>
+            <div className="flex gap-2 mb-3">
+              <span className="text-[10px] tracking-[0.1em] px-2.5 py-0.5" style={{ color: 'var(--tag-text)', border: '1px solid var(--tag)' }}>
                 {(product.category || '').toUpperCase()}
               </span>
               {product.articul && (
-                <span style={{ fontSize: 10, letterSpacing: '0.1em', color: tk.textFaint, border: `1px solid ${tk.border}`, padding: '3px 10px' }}>
+                <span className="text-[10px] tracking-[0.1em] px-2.5 py-0.5" style={{ color: 'var(--text-faint)', border: '1px solid var(--border)' }}>
                   {product.articul}
                 </span>
               )}
             </div>
 
-            <h1 style={{ margin: '0 0 6px', fontSize: 24, fontWeight: 500, letterSpacing: '0.03em', lineHeight: 1.3, color: tk.text }}>
+            <h1 className="m-0 mb-1.5 text-2xl font-medium tracking-wide leading-snug" style={{ color: 'var(--text)' }}>
               {product.name}
             </h1>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 }}>
+            <div className="flex items-center gap-1.5 mb-4">
               <Stars rating={4} />
-              <span style={{ fontSize: 11, color: tk.textFaint }}>{FAKE_REVIEWS.length} отзыва</span>
+              <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>{FAKE_REVIEWS.length} отзыва</span>
             </div>
 
             {/* Price */}
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 20 }}>
+            <div className="flex items-baseline gap-3.5 mb-5">
               {product.oldPrice && (
-                <span style={{ fontSize: 16, color: tk.textFaint, textDecoration: 'line-through' }}>{formatPrice(product.oldPrice)}</span>
+                <span className="text-base line-through" style={{ color: 'var(--text-faint)' }}>{formatPrice(product.oldPrice)}</span>
               )}
-              <span style={{ fontSize: 26, fontWeight: 600, color: product.oldPrice ? tk.saleBadge : tk.text, letterSpacing: '0.02em' }}>
+              <span className="text-[26px] font-semibold tracking-wide" style={{ color: product.oldPrice ? 'var(--sale)' : 'var(--text)' }}>
                 {formatPrice(product.price)}
               </span>
             </div>
 
-            <div style={{ borderTop: `1px solid ${tk.border}`, marginBottom: 20 }} />
+            <div className="mb-5" style={{ borderTop: '1px solid var(--border)' }} />
 
             {/* Size picker */}
-            <div style={{ marginBottom: 18 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                <span style={{ fontSize: 11, letterSpacing: '0.08em', color: tk.textMuted, fontWeight: 600 }}>РАЗМЕР</span>
-                <button onClick={() => setSizeGuideOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: tk.textFaint, fontFamily: 'inherit', letterSpacing: '0.04em', textDecoration: 'underline', padding: 0 }}>
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-2.5">
+                <span className="text-[11px] tracking-widest font-semibold" style={{ color: 'var(--text-muted)' }}>РАЗМЕР</span>
+                <button onClick={() => setSizeGuideOpen(true)}
+                  className="flex items-center gap-1 text-[11px] tracking-wider underline bg-transparent border-none cursor-pointer p-0"
+                  style={{ color: 'var(--text-faint)', fontFamily: serif }}>
                   <Ruler size={11} /> Таблица размеров
                 </button>
               </div>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <div className="flex gap-1.5 flex-wrap">
                 {(product.sizes || []).map(s => (
-                  <button key={s} onClick={() => { setSelectedSize(s); setSizeError(false) }} style={{
-                    border: selectedSize === s ? `1.5px solid ${tk.text}` : sizeError ? '1.5px solid #c0392b' : `1px solid ${tk.borderMid}`,
-                    background: selectedSize === s ? tk.btnPrimary : tk.inputBg,
-                    color: selectedSize === s ? tk.btnPrimaryText : sizeError ? '#c0392b' : tk.textMuted,
-                    padding: '8px 14px', fontSize: 12, cursor: 'pointer',
-                    fontFamily: 'inherit', letterSpacing: '0.04em', transition: 'all 0.15s', minWidth: 44, textAlign: 'center',
-                  }}>{s}</button>
+                  <button key={s} onClick={() => { setSelectedSize(s); setSizeError(false) }}
+                    className="px-3.5 py-2 text-xs tracking-wider cursor-pointer transition-all duration-150 min-w-[44px] text-center"
+                    style={{
+                      fontFamily: serif,
+                      border: selectedSize === s ? '1.5px solid var(--text)' : sizeError ? '1.5px solid #c0392b' : '1px solid var(--border-mid)',
+                      background: selectedSize === s ? 'var(--btn)' : 'var(--input-bg)',
+                      color: selectedSize === s ? 'var(--btn-text)' : sizeError ? '#c0392b' : 'var(--text-muted)',
+                    }}>{s}</button>
                 ))}
               </div>
-              {sizeError && <div style={{ fontSize: 11, color: '#c0392b', marginTop: 7, letterSpacing: '0.04em' }}>Пожалуйста, выберите размер</div>}
+              {sizeError && <div className="text-[11px] mt-1.5 tracking-wider" style={{ color: '#c0392b' }}>Пожалуйста, выберите размер</div>}
             </div>
 
             {/* Quantity */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 11, letterSpacing: '0.08em', color: tk.textMuted, marginBottom: 10, fontWeight: 600 }}>КОЛИЧЕСТВО</div>
-              <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${tk.borderMid}`, width: 'fit-content' }}>
-                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', color: tk.textMuted }}>
+            <div className="mb-5">
+              <div className="text-[11px] tracking-widest font-semibold mb-2.5" style={{ color: 'var(--text-muted)' }}>КОЛИЧЕСТВО</div>
+              <div className="flex items-center w-fit" style={{ border: '1px solid var(--border-mid)' }}>
+                <button onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                  className="bg-transparent border-none cursor-pointer w-9 h-9 flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>
                   <ChevronLeft size={14} />
                 </button>
-                <span style={{ fontSize: 14, color: tk.text, minWidth: 32, textAlign: 'center' }}>{quantity}</span>
-                <button onClick={() => setQuantity(q => q + 1)} style={{ background: 'none', border: 'none', cursor: 'pointer', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', color: tk.textMuted }}>
+                <span className="text-sm min-w-[32px] text-center" style={{ color: 'var(--text)' }}>{quantity}</span>
+                <button onClick={() => setQuantity(q => q + 1)}
+                  className="bg-transparent border-none cursor-pointer w-9 h-9 flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>
                   <ChevronRight size={14} />
                 </button>
               </div>
             </div>
 
             {/* CTA buttons */}
-            <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
-              <button onClick={handleAddToCart} style={{
-                flex: 1, background: tk.btnPrimary, color: tk.btnPrimaryText, border: 'none',
-                padding: '14px 0', fontSize: 12, letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'inherit',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                animation: addedToCart ? 'cartPop 0.35s ease' : 'none', transition: 'background 0.2s',
-              }}
-                onMouseEnter={e => e.currentTarget.style.background = tk.btnHover}
-                onMouseLeave={e => e.currentTarget.style.background = tk.btnPrimary}>
+            <div className="flex gap-2.5 mb-3.5">
+              <button onClick={handleAddToCart}
+                className="flex-1 flex items-center justify-center gap-2.5 py-3.5 text-xs tracking-[0.1em] cursor-pointer border-none transition-colors duration-200"
+                style={{ fontFamily: serif, background: 'var(--btn)', color: 'var(--btn-text)', animation: addedToCart ? 'cartPop 0.35s ease' : 'none' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--btn-hover)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'var(--btn)'}>
                 <ShoppingBag size={15} />
                 {addedToCart ? 'ДОБАВЛЕНО ✓' : 'В КОРЗИНУ'}
               </button>
-              <button onClick={() => setLiked(l => !l)} style={{
-                width: 50, background: liked ? (dark ? '#2a1515' : '#fff5f5') : tk.inputBg,
-                border: liked ? `1px solid ${dark ? '#5a2020' : '#f5c6c6'}` : `1px solid ${tk.borderMid}`,
-                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s',
-              }}>
-                <Heart size={17} fill={liked ? tk.heartActive : 'none'} color={liked ? tk.heartActive : tk.icon} />
+              <button onClick={() => setLiked(l => !l)}
+                className="w-[50px] flex items-center justify-center cursor-pointer transition-all duration-200"
+                style={{
+                  background: liked ? (dark ? '#2a1515' : '#fff5f5') : 'var(--input-bg)',
+                  border: liked ? `1px solid ${dark ? '#5a2020' : '#f5c6c6'}` : '1px solid var(--border-mid)',
+                }}>
+                <Heart size={17} fill={liked ? 'var(--heart)' : 'none'} color={liked ? 'var(--heart)' : 'var(--icon)'} />
               </button>
             </div>
 
-            <button style={{ background: 'none', border: `1px solid ${tk.borderMid}`, cursor: 'pointer', padding: '10px 0', fontSize: 11, letterSpacing: '0.08em', color: tk.textFaint, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 22, transition: 'border-color 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = tk.text}
-              onMouseLeave={e => e.currentTarget.style.borderColor = tk.borderMid}>
+            <button className="flex items-center justify-center gap-1.5 py-2.5 text-[11px] tracking-widest cursor-pointer bg-transparent mb-5 transition-colors duration-200"
+              style={{ border: '1px solid var(--border-mid)', color: 'var(--text-faint)', fontFamily: serif }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--text)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-mid)'}>
               <Share2 size={13} /> ПОДЕЛИТЬСЯ
             </button>
 
             {/* Service badges */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 22 }}>
-              {[
-                { icon: <Truck size={16} />, label: 'Доставка от 1–3 дней' },
-                { icon: <RotateCcw size={16} />, label: 'Возврат 14 дней' },
-                { icon: <Shield size={16} />, label: 'Гарантия качества' },
-              ].map(({ icon, label }) => (
-                <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '12px 8px', background: tk.surface, fontSize: 10, color: tk.textFaint, textAlign: 'center', lineHeight: 1.5, letterSpacing: '0.03em' }}>
-                  <span style={{ color: tk.textMuted }}>{icon}</span>
+            <div className="grid grid-cols-3 gap-2 mb-5">
+              {[{ icon: <Truck size={16} />, label: 'Доставка от 1–3 дней' }, { icon: <RotateCcw size={16} />, label: 'Возврат 14 дней' }, { icon: <Shield size={16} />, label: 'Гарантия качества' }].map(({ icon, label }) => (
+                <div key={label} className="flex flex-col items-center gap-1.5 px-2 py-3 text-[10px] text-center leading-snug tracking-wide"
+                  style={{ background: 'var(--surface)', color: 'var(--text-faint)' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>{icon}</span>
                   {label}
                 </div>
               ))}
             </div>
 
-            {/* Accordions */}
             <Accordion title="ОПИСАНИЕ" defaultOpen>
-              Элегантная модель из высококачественных материалов. Идеально подходит для повседневного использования и особых случаев. Лаконичный крой, удобная посадка, продуманные детали — всё это делает вещь универсальной.
+              Элегантная модель из высококачественных материалов. Идеально подходит для повседневного использования и особых случаев. Лаконичный крой, удобная посадка, продуманные детали.
             </Accordion>
             <Accordion title="СОСТАВ И УХОД">
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 16px' }}>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                 {[['Состав','95% хлопок, 5% эластан'],['Страна','Узбекистан'],['Артикул', product.articul || '—']].map(([k, v]) => (
                   <React.Fragment key={k}>
-                    <span style={{ color: tk.textFaint }}>{k}</span>
-                    <span style={{ color: tk.textMuted }}>{v}</span>
+                    <span style={{ color: 'var(--text-faint)' }}>{k}</span>
+                    <span style={{ color: 'var(--text-muted)' }}>{v}</span>
                   </React.Fragment>
                 ))}
               </div>
-              <div style={{ marginTop: 14, color: tk.textFaint, fontSize: 12 }}>
+              <div className="mt-3.5 text-xs" style={{ color: 'var(--text-faint)' }}>
                 Ручная стирка при 30°C · Не отбеливать · Глажка при низкой температуре
               </div>
             </Accordion>
@@ -524,46 +545,47 @@ export default function ProductPage() {
         </div>
 
         {/* Reviews */}
-        <section style={{ padding: '40px', borderTop: `1px solid ${tk.border}`, maxWidth: 1280, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-            <h2 style={{ margin: 0, fontSize: 18, letterSpacing: '0.06em', fontWeight: 500, color: tk.text }}>ОТЗЫВЫ</h2>
-            <button style={{ background: 'none', border: `1px solid ${tk.text}`, padding: '8px 20px', fontSize: 11, letterSpacing: '0.08em', cursor: 'pointer', fontFamily: 'inherit', color: tk.text }}>ОСТАВИТЬ ОТЗЫВ</button>
+        <section className="px-10 py-10 max-w-[1280px] mx-auto" style={{ borderTop: '1px solid var(--border)' }}>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="m-0 text-lg font-medium tracking-widest" style={{ color: 'var(--text)' }}>ОТЗЫВЫ</h2>
+            <button className="bg-transparent px-5 py-2 text-[11px] tracking-widest cursor-pointer"
+              style={{ border: '1px solid var(--text)', color: 'var(--text)', fontFamily: serif }}>ОСТАВИТЬ ОТЗЫВ</button>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
+          <div className="grid grid-cols-3 gap-5">
             {FAKE_REVIEWS.map((r, i) => (
-              <div key={i} style={{ padding: '20px 24px', background: tk.reviewBg, borderLeft: `3px solid ${tk.reviewBorder}` }}>
-                <div style={{ marginBottom: 8 }}><Stars rating={r.rating} /></div>
-                <p style={{ margin: '0 0 12px', fontSize: 13, color: tk.textMuted, lineHeight: 1.7 }}>{r.text}</p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: tk.text }}>{r.name}</span>
-                  <span style={{ fontSize: 10, color: tk.textFaint }}>{r.date}</span>
+              <div key={i} className="px-6 py-5" style={{ background: 'var(--review-bg)', borderLeft: '3px solid var(--review-border)' }}>
+                <div className="mb-2"><Stars rating={r.rating} /></div>
+                <p className="m-0 mb-3 text-[13px] leading-7" style={{ color: 'var(--text-muted)' }}>{r.text}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-[11px] font-semibold" style={{ color: 'var(--text)' }}>{r.name}</span>
+                  <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>{r.date}</span>
                 </div>
-                {r.verified && <div style={{ fontSize: 10, color: tk.verified, marginTop: 4, letterSpacing: '0.04em' }}>✓ Подтверждённая покупка</div>}
+                {r.verified && <div className="text-[10px] mt-1 tracking-wider" style={{ color: 'var(--verified)' }}>✓ Подтверждённая покупка</div>}
               </div>
             ))}
           </div>
         </section>
 
-        {/* Related products */}
+        {/* Related */}
         {related.length > 0 && (
-          <section style={{ padding: '40px 40px 60px', borderTop: `1px solid ${tk.border}`, maxWidth: 1280, margin: '0 auto' }}>
-            <h2 style={{ margin: '0 0 24px', fontSize: 18, letterSpacing: '0.06em', fontWeight: 500, color: tk.text }}>С ЭТИМ ТАКЖЕ СМОТРЯТ</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px 16px' }}>
+          <section className="px-10 pb-16 pt-10 max-w-[1280px] mx-auto" style={{ borderTop: '1px solid var(--border)' }}>
+            <h2 className="m-0 mb-6 text-lg font-medium tracking-widest" style={{ color: 'var(--text)' }}>С ЭТИМ ТАКЖЕ СМОТРЯТ</h2>
+            <div className="grid grid-cols-4 gap-x-4 gap-y-2">
               {related.map(p => {
                 const img = getProductImages(p)[0] || 'https://placehold.co/400x500/f5f2ee/888?text=Фото'
                 return (
-                  <div key={p.id} className="related-card" onClick={() => navigate(`/products/${p.id}`)} style={{ cursor: 'pointer' }}>
-                    <div style={{ position: 'relative', overflow: 'hidden', background: tk.cardBg, aspectRatio: '3/4' }}>
-                      <img src={img} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
+                  <div key={p.id} className="related-card cursor-pointer" onClick={() => navigate(`/products/${p.id}`)}>
+                    <div className="relative overflow-hidden" style={{ background: 'var(--card-bg)', aspectRatio: '3/4' }}>
+                      <img src={img} alt={p.name} className="w-full h-full object-cover transition-transform duration-500"
                         onError={e => { e.target.src = 'https://placehold.co/400x500/f5f2ee/888?text=Фото' }} />
-                      {p.oldPrice && <div style={{ position: 'absolute', top: 10, left: 10, background: tk.saleBadge, color: '#fff', fontSize: 10, padding: '2px 6px' }}>SALE</div>}
+                      {p.oldPrice && <div className="absolute top-2.5 left-2.5 text-white text-[10px] px-1.5 py-0.5" style={{ background: 'var(--sale)' }}>SALE</div>}
                     </div>
-                    <div style={{ padding: '10px 0 16px' }}>
-                      <div style={{ fontSize: 10, color: tk.textFaint, marginBottom: 3 }}>{p.category}</div>
-                      <div style={{ fontSize: 11.5, color: tk.textMuted, marginBottom: 4 }}>{p.name}</div>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
-                        {p.oldPrice && <span style={{ fontSize: 11, color: tk.textFaint, textDecoration: 'line-through' }}>{formatPrice(p.oldPrice)}</span>}
-                        <span style={{ fontSize: 13, fontWeight: 600, color: tk.text }}>{formatPrice(p.price)}</span>
+                    <div className="pt-2.5 pb-4">
+                      <div className="text-[10px] mb-1" style={{ color: 'var(--text-faint)' }}>{p.category}</div>
+                      <div className="text-[11.5px] mb-1" style={{ color: 'var(--text-muted)' }}>{p.name}</div>
+                      <div className="flex gap-2 items-baseline">
+                        {p.oldPrice && <span className="text-[11px] line-through" style={{ color: 'var(--text-faint)' }}>{formatPrice(p.oldPrice)}</span>}
+                        <span className="text-[13px] font-semibold" style={{ color: 'var(--text)' }}>{formatPrice(p.price)}</span>
                       </div>
                     </div>
                   </div>

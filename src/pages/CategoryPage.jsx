@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, createContext, useContext } from '
 import { useParams, useNavigate } from 'react-router-dom'
 import { Heart, ShoppingBag, Search, Home, User, Loader2, X, ChevronRight, Moon, Sun } from 'lucide-react'
 
-// ─── Константы ────────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const API_URL = 'https://69989a63d66520f95f18019f.mockapi.io/products/products'
 
@@ -47,65 +47,61 @@ const SECTIONS = {
   },
 }
 
-// ─── Theme context (совместим с AllProducts) ──────────────────────────────────
+// ─── Theme ────────────────────────────────────────────────────────────────────
+// Tailwind не работает с динамическими JS-значениями в className.
+// Решение: CSS custom properties на корневом div, Tailwind — для layout/spacing.
+
 export const ThemeContext = createContext({ dark: false, toggleDark: () => {} })
 
-const T = {
+const themeVars = {
   light: {
-    bg: '#fff',
-    surface: '#faf8f5',
-    surfaceHover: '#f5f2ee',
-    border: '#e8e3de',
-    text: '#222',
-    textMuted: '#555',
-    textFaint: '#aaa',
-    inputBg: '#fafaf9',
-    cardBg: '#f5f2ee',
-    headerBg: '#fff',
-    icon: '#555',
-    btnPrimary: '#222',
-    btnPrimaryText: '#fff',
-    heartActive: '#c0392b',
-    tagBorder: '#e0dbd5',
-    tagColor: '#aaa',
-    navActive: '#222',
-    navInactive: '#888',
-    breadcrumbLink: '#888',
-    breadcrumbActive: '#555',
-    subcatText: '#888',
-    subcatHover: '#111',
+    '--bg':                '#ffffff',
+    '--surface':           '#faf8f5',
+    '--surface-hover':     '#f5f2ee',
+    '--border':            '#e8e3de',
+    '--text':              '#222222',
+    '--text-muted':        '#555555',
+    '--text-faint':        '#aaaaaa',
+    '--card-bg':           '#f5f2ee',
+    '--header-bg':         '#ffffff',
+    '--icon':              '#555555',
+    '--btn':               '#222222',
+    '--btn-text':          '#ffffff',
+    '--heart':             '#c0392b',
+    '--nav-active':        '#222222',
+    '--nav-inactive':      '#888888',
+    '--breadcrumb-link':   '#888888',
+    '--breadcrumb-active': '#555555',
+    '--subcat-text':       '#888888',
+    '--subcat-hover':      '#111111',
   },
   dark: {
-    bg: '#0f0f0f',
-    surface: '#1a1a1a',
-    surfaceHover: '#222',
-    border: '#2a2a2a',
-    text: '#f0ede8',
-    textMuted: '#b0a898',
-    textFaint: '#666',
-    inputBg: '#161616',
-    cardBg: '#1c1c1c',
-    headerBg: '#0f0f0f',
-    icon: '#b0a898',
-    btnPrimary: '#f0ede8',
-    btnPrimaryText: '#111',
-    heartActive: '#e05c5c',
-    tagBorder: '#2e2e2e',
-    tagColor: '#777',
-    navActive: '#f0ede8',
-    navInactive: '#666',
-    breadcrumbLink: '#666',
-    breadcrumbActive: '#b0a898',
-    subcatText: '#888',
-    subcatHover: '#f0ede8',
+    '--bg':                '#0f0f0f',
+    '--surface':           '#1a1a1a',
+    '--surface-hover':     '#222222',
+    '--border':            '#2a2a2a',
+    '--text':              '#f0ede8',
+    '--text-muted':        '#b0a898',
+    '--text-faint':        '#666666',
+    '--card-bg':           '#1c1c1c',
+    '--header-bg':         '#0f0f0f',
+    '--icon':              '#b0a898',
+    '--btn':               '#f0ede8',
+    '--btn-text':          '#111111',
+    '--heart':             '#e05c5c',
+    '--nav-active':        '#f0ede8',
+    '--nav-inactive':      '#666666',
+    '--breadcrumb-link':   '#666666',
+    '--breadcrumb-active': '#b0a898',
+    '--subcat-text':       '#888888',
+    '--subcat-hover':      '#f0ede8',
   },
 }
 
-// ─── Утилиты ──────────────────────────────────────────────────────────────────
+// ─── Utils ────────────────────────────────────────────────────────────────────
 
-function formatPrice(price) {
-  return price.toLocaleString('ru-RU') + ' сум'
-}
+const serif = "'Cormorant Garamond', Georgia, serif"
+const formatPrice = p => p.toLocaleString('ru-RU') + ' сум'
 
 function getProductImage(product) {
   return product.images?.[0] ?? product.image ?? 'https://placehold.co/400x500/f5f2ee/888?text=Фото'
@@ -117,207 +113,180 @@ function pluralizeItems(count) {
   return 'товаров'
 }
 
-// ─── Компоненты ───────────────────────────────────────────────────────────────
+// ─── Header ───────────────────────────────────────────────────────────────────
 
 function Header({ activeNavKey }) {
   const navigate = useNavigate()
   const { dark, toggleDark } = useContext(ThemeContext)
-  const tk = dark ? T.dark : T.light
 
   return (
-    <header style={{
-      position: 'sticky', top: 0, zIndex: 50,
-      background: tk.headerBg,
-      borderBottom: `1px solid ${tk.border}`,
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 24px', height: 56,
-      transition: 'background 0.3s',
-      fontFamily: "'Cormorant Garamond', Georgia, serif",
-    }}>
-      {/* Логотип */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }} onClick={() => navigate('/products')}>
-        <div style={{ border: `1.5px solid ${tk.text}`, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 600, color: tk.text }}>
-          SF
-        </div>
-        <span style={{ fontSize: 18, fontWeight: 500, letterSpacing: '0.1em', color: tk.text }}>
-          selfie
-        </span>
+    <header
+      className="sticky top-0 z-50 flex items-center justify-between px-6 h-14 transition-colors duration-300"
+      style={{ background: 'var(--header-bg)', borderBottom: '1px solid var(--border)', fontFamily: serif }}
+    >
+      {/* Logo */}
+      <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => navigate('/products')}>
+        <div
+          className="w-7 h-7 flex items-center justify-center text-[10px] font-semibold"
+          style={{ border: '1.5px solid var(--text)', color: 'var(--text)' }}
+        >SF</div>
+        <span className="text-lg font-medium tracking-[0.1em]" style={{ color: 'var(--text)' }}>selfie</span>
       </div>
 
-      {/* Навигация */}
-      <nav style={{ display: 'flex', gap: 20 }}>
+      {/* Nav */}
+      <nav className="flex gap-5">
         {NAV_ITEMS.map(item => {
           const isActive = activeNavKey === item
           return (
             <button
               key={item}
               onClick={() => navigate(NAV_ROUTES[item] ?? '/products')}
+              className="bg-transparent border-none cursor-pointer text-[11px] tracking-wider transition-all duration-200 px-0.5"
               style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontSize: 11, letterSpacing: '0.06em',
-                fontFamily: 'inherit',
-                color: isActive ? tk.navActive : tk.navInactive,
+                fontFamily: serif,
+                color: isActive ? 'var(--nav-active)' : 'var(--nav-inactive)',
                 fontWeight: isActive ? 600 : 400,
-                padding: '0 2px',
-                borderBottom: isActive ? `1.5px solid ${tk.navActive}` : '1.5px solid transparent',
-                transition: 'all 0.2s',
+                borderBottom: isActive ? '1.5px solid var(--nav-active)' : '1.5px solid transparent',
               }}
-            >
-              {item}
-            </button>
+            >{item}</button>
           )
         })}
       </nav>
 
-      {/* Иконки */}
-      <div style={{ display: 'flex', gap: 16, alignItems: 'center', color: tk.icon }}>
-        <button onClick={toggleDark} style={{ background: 'none', border: 'none', cursor: 'pointer', color: tk.icon, display: 'flex', padding: 0, transition: 'color 0.2s' }}>
+      {/* Icons */}
+      <div className="flex gap-4 items-center" style={{ color: 'var(--icon)' }}>
+        <button onClick={toggleDark} className="bg-transparent border-none cursor-pointer flex p-0 transition-colors duration-200" style={{ color: 'var(--icon)' }}>
           {dark ? <Sun size={18} /> : <Moon size={18} />}
         </button>
-        <Home     size={18} style={{ cursor: 'pointer' }} onClick={() => navigate('/products')} />
-        <Search   size={18} style={{ cursor: 'pointer' }} />
-        <Heart    size={18} style={{ cursor: 'pointer' }} />
-        <ShoppingBag size={18} style={{ cursor: 'pointer' }} />
-        <User     size={18} style={{ cursor: 'pointer' }} />
+        <Home        size={18} className="cursor-pointer" onClick={() => navigate('/products')} />
+        <Search      size={18} className="cursor-pointer" />
+        <Heart       size={18} className="cursor-pointer" />
+        <ShoppingBag size={18} className="cursor-pointer" />
+        <User        size={18} className="cursor-pointer" />
       </div>
     </header>
   )
 }
 
+// ─── ProductCard ──────────────────────────────────────────────────────────────
+
 function ProductCard({ product }) {
   const navigate = useNavigate()
   const { dark } = useContext(ThemeContext)
-  const tk = dark ? T.dark : T.light
   const [hovered, setHovered] = useState(false)
   const [liked,   setLiked]   = useState(false)
 
   return (
     <div
-      style={{ cursor: 'pointer', fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+      className="cursor-pointer"
+      style={{ fontFamily: serif }}
       onClick={() => navigate(`/products/${product.id}`)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Изображение */}
-      <div style={{ position: 'relative', overflow: 'hidden', background: tk.cardBg, aspectRatio: '3/4' }}>
+      <div className="relative overflow-hidden" style={{ background: 'var(--card-bg)', aspectRatio: '3/4' }}>
         <img
           src={getProductImage(product)}
           alt={product.name}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s', transform: hovered ? 'scale(1.04)' : 'scale(1)' }}
+          className="w-full h-full object-cover transition-transform duration-500"
+          style={{ transform: hovered ? 'scale(1.04)' : 'scale(1)' }}
           onError={e => { e.target.src = 'https://placehold.co/400x500/f5f2ee/888?text=Фото' }}
         />
-
         {product.oldPrice && (
-          <div style={{ position: 'absolute', top: 10, left: 10, background: '#c0392b', color: '#fff', fontSize: 10, padding: '2px 6px', letterSpacing: '0.04em' }}>
+          <div className="absolute top-2.5 left-2.5 text-white text-[10px] px-1.5 py-0.5 tracking-wider" style={{ background: '#c0392b' }}>
             SALE
           </div>
         )}
-
         <button
-          onClick={e => { e.stopPropagation(); setLiked(prev => !prev) }}
+          onClick={e => { e.stopPropagation(); setLiked(p => !p) }}
+          className="absolute top-2.5 right-2.5 rounded-full p-1.5 flex items-center justify-center transition-all duration-200 border-none cursor-pointer"
           style={{
-            position: 'absolute', top: 10, right: 10, borderRadius: '50%', padding: 6,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s', border: 'none', cursor: 'pointer',
             background: liked
               ? (dark ? 'rgba(30,30,30,0.95)' : 'rgba(255,255,255,0.95)')
-              : (dark ? 'rgba(30,30,30,0.7)' : 'rgba(255,255,255,0.7)'),
+              : (dark ? 'rgba(30,30,30,0.7)'  : 'rgba(255,255,255,0.7)'),
             boxShadow: liked ? '0 2px 8px rgba(0,0,0,0.25)' : 'none',
           }}
         >
-          <Heart size={14} fill={liked ? tk.heartActive : 'none'} color={liked ? tk.heartActive : (dark ? '#aaa' : '#888')} />
+          <Heart size={14} fill={liked ? 'var(--heart)' : 'none'} color={liked ? 'var(--heart)' : (dark ? '#aaa' : '#888')} />
         </button>
       </div>
 
-      {/* Информация */}
-      <div style={{ paddingTop: 10, paddingBottom: 16 }}>
-        <div style={{ fontSize: 10, color: tk.textFaint, marginBottom: 3, letterSpacing: '0.03em' }}>{product.category}</div>
-        <div style={{ fontSize: 11.5, color: tk.textMuted, marginBottom: 4, lineHeight: 1.4 }}>{product.name}</div>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 4 }}>
+      <div className="pt-2.5 pb-4">
+        <div className="text-[10px] mb-1 tracking-wide" style={{ color: 'var(--text-faint)' }}>{product.category}</div>
+        <div className="text-[11.5px] mb-1 leading-snug" style={{ color: 'var(--text-muted)' }}>{product.name}</div>
+        <div className="flex items-baseline gap-2.5 mt-1">
           {product.oldPrice && (
-            <span style={{ fontSize: 11, color: tk.textFaint, textDecoration: 'line-through' }}>{formatPrice(product.oldPrice)}</span>
+            <span className="text-[11px] line-through" style={{ color: 'var(--text-faint)' }}>{formatPrice(product.oldPrice)}</span>
           )}
-          <span style={{ fontSize: 13, fontWeight: 600, color: tk.text }}>{formatPrice(product.price)}</span>
+          <span className="text-[13px] font-semibold" style={{ color: 'var(--text)' }}>{formatPrice(product.price)}</span>
         </div>
       </div>
     </div>
   )
 }
 
+// ─── ProductSkeleton ──────────────────────────────────────────────────────────
+
 function ProductSkeleton() {
-  const { dark } = useContext(ThemeContext)
-  const tk = dark ? T.dark : T.light
   return (
     <div>
-      <div style={{ background: tk.cardBg, aspectRatio: '3/4', animation: 'pulse 1.5s ease-in-out infinite' }} />
-      <div style={{ paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ height: 10, background: tk.cardBg, borderRadius: 2, width: '60%', animation: 'pulse 1.5s ease-in-out infinite' }} />
-        <div style={{ height: 12, background: tk.cardBg, borderRadius: 2, width: '80%', animation: 'pulse 1.5s ease-in-out infinite' }} />
-        <div style={{ height: 14, background: tk.cardBg, borderRadius: 2, width: '40%', animation: 'pulse 1.5s ease-in-out infinite' }} />
+      <div className="animate-pulse" style={{ background: 'var(--card-bg)', aspectRatio: '3/4' }} />
+      <div className="pt-2.5 flex flex-col gap-2">
+        <div className="h-2.5 rounded-sm animate-pulse w-3/5" style={{ background: 'var(--card-bg)' }} />
+        <div className="h-3 rounded-sm animate-pulse w-4/5"   style={{ background: 'var(--card-bg)' }} />
+        <div className="h-3.5 rounded-sm animate-pulse w-2/5" style={{ background: 'var(--card-bg)' }} />
       </div>
-      <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
     </div>
   )
 }
+
+// ─── ProductGrid ──────────────────────────────────────────────────────────────
 
 function ProductGrid({ products, loading, error, onBack }) {
-  const { dark } = useContext(ThemeContext)
-  const tk = dark ? T.dark : T.light
+  if (loading) return (
+    <div className="grid grid-cols-4 gap-x-4 gap-y-2">
+      {Array.from({ length: 8 }).map((_, i) => <ProductSkeleton key={i} />)}
+    </div>
+  )
 
-  if (loading) {
-    return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px 16px' }}>
-        {Array.from({ length: 8 }).map((_, i) => <ProductSkeleton key={i} />)}
-      </div>
-    )
-  }
+  if (error) return (
+    <div className="text-center py-20" style={{ color: 'var(--text-faint)', fontFamily: serif }}>
+      <div className="text-4xl mb-4">⚠️</div>
+      <div className="text-sm mb-4">Не удалось загрузить товары</div>
+      <button onClick={() => window.location.reload()}
+        className="text-xs px-7 py-2.5 cursor-pointer border-none tracking-widest"
+        style={{ background: 'var(--btn)', color: 'var(--btn-text)', fontFamily: serif }}>
+        ПОВТОРИТЬ
+      </button>
+    </div>
+  )
 
-  if (error) {
-    return (
-      <div style={{ textAlign: 'center', padding: '80px 0', color: tk.textFaint, fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
-        <div style={{ fontSize: 40, marginBottom: 16 }}>⚠️</div>
-        <div style={{ fontSize: 14, marginBottom: 16 }}>Не удалось загрузить товары</div>
-        <button
-          onClick={() => window.location.reload()}
-          style={{ background: tk.btnPrimary, color: tk.btnPrimaryText, border: 'none', padding: '10px 28px', fontSize: 12, letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'inherit' }}
-        >
-          ПОВТОРИТЬ
-        </button>
-      </div>
-    )
-  }
-
-  if (products.length === 0) {
-    return (
-      <div style={{ textAlign: 'center', padding: '80px 0', color: tk.textFaint, fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
-        <div style={{ fontSize: 40, marginBottom: 16 }}>🕵️</div>
-        <div style={{ fontSize: 14, marginBottom: 20 }}>В этой категории пока нет товаров</div>
-        <button
-          onClick={onBack}
-          style={{ background: tk.btnPrimary, color: tk.btnPrimaryText, border: 'none', padding: '10px 28px', fontSize: 12, letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'inherit' }}
-        >
-          СМОТРЕТЬ ВСЕ КАТЕГОРИИ
-        </button>
-      </div>
-    )
-  }
+  if (products.length === 0) return (
+    <div className="text-center py-20" style={{ color: 'var(--text-faint)', fontFamily: serif }}>
+      <div className="text-4xl mb-4">🕵️</div>
+      <div className="text-sm mb-5">В этой категории пока нет товаров</div>
+      <button onClick={onBack}
+        className="text-xs px-7 py-2.5 cursor-pointer border-none tracking-widest"
+        style={{ background: 'var(--btn)', color: 'var(--btn-text)', fontFamily: serif }}>
+        СМОТРЕТЬ ВСЕ КАТЕГОРИИ
+      </button>
+    </div>
+  )
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px 16px' }}>
-      {products.map(product => <ProductCard key={product.id} product={product} />)}
+    <div className="grid grid-cols-4 gap-x-4 gap-y-2">
+      {products.map(p => <ProductCard key={p.id} product={p} />)}
     </div>
   )
 }
 
-// ─── Главный компонент ────────────────────────────────────────────────────────
+// ─── CategoryPage ─────────────────────────────────────────────────────────────
 
 export default function CategoryPage() {
   const { section } = useParams()
   const navigate    = useNavigate()
 
   const [dark, setDark] = useState(false)
-  const tk = dark ? T.dark : T.light
-
   const sectionInfo = SECTIONS[section]
 
   const [products,     setProducts]     = useState([])
@@ -325,9 +294,7 @@ export default function CategoryPage() {
   const [error,        setError]        = useState(null)
   const [activeSubcat, setActiveSubcat] = useState(null)
 
-  useEffect(() => {
-    if (!sectionInfo) navigate('/products')
-  }, [section, sectionInfo, navigate])
+  useEffect(() => { if (!sectionInfo) navigate('/products') }, [section, sectionInfo, navigate])
 
   useEffect(() => {
     setLoading(true); setError(null)
@@ -341,14 +308,13 @@ export default function CategoryPage() {
 
   const availableSubcats = useMemo(() => {
     if (!sectionInfo) return []
-    const apiCategories = new Set(products.map(p => p.category))
-    return sectionInfo.subcategories.filter(s => apiCategories.has(s))
+    const cats = new Set(products.map(p => p.category))
+    return sectionInfo.subcategories.filter(s => cats.has(s))
   }, [products, sectionInfo])
 
-  const subcatProducts = useMemo(() => {
-    if (!activeSubcat) return []
-    return products.filter(p => p.category === activeSubcat)
-  }, [products, activeSubcat])
+  const subcatProducts = useMemo(() => (
+    activeSubcat ? products.filter(p => p.category === activeSubcat) : []
+  ), [products, activeSubcat])
 
   if (!sectionInfo) return null
 
@@ -356,82 +322,71 @@ export default function CategoryPage() {
 
   return (
     <ThemeContext.Provider value={{ dark, toggleDark: () => setDark(d => !d) }}>
-      <div style={{
-        minHeight: '100vh',
-        background: tk.bg,
-        fontFamily: "'Cormorant Garamond', Georgia, serif",
-        transition: 'background 0.3s, color 0.3s',
-        color: tk.text,
-      }}>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap"
-          rel="stylesheet"
-        />
+      {/* CSS vars applied here — все дочерние элементы читают var(--...) */}
+      <div
+        className="min-h-screen transition-colors duration-300"
+        style={{ ...themeVars[dark ? 'dark' : 'light'], background: 'var(--bg)', color: 'var(--text)', fontFamily: serif }}
+      >
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
         <Header activeNavKey={sectionInfo.navKey} />
 
-        {/* Хлебные крошки */}
-        <nav style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, letterSpacing: '0.04em' }}>
+        {/* Breadcrumbs */}
+        <nav className="flex items-center gap-2 px-6 py-3 text-[11px] tracking-wider">
           <span
-            style={{ cursor: 'pointer', color: tk.breadcrumbLink, transition: 'color 0.2s' }}
-            onMouseEnter={e => e.target.style.color = tk.text}
-            onMouseLeave={e => e.target.style.color = tk.breadcrumbLink}
+            className="cursor-pointer transition-colors duration-200"
+            style={{ color: 'var(--breadcrumb-link)' }}
+            onMouseEnter={e => e.target.style.color = 'var(--text)'}
+            onMouseLeave={e => e.target.style.color = 'var(--breadcrumb-link)'}
             onClick={() => navigate('/products')}
-          >
-            Главная страница
-          </span>
-          <ChevronRight size={11} color={tk.textFaint} />
+          >Главная страница</span>
+
+          <ChevronRight size={11} style={{ color: 'var(--text-faint)' }} />
 
           {activeSubcat ? (
             <>
               <span
-                style={{ cursor: 'pointer', color: tk.breadcrumbLink, transition: 'color 0.2s' }}
-                onMouseEnter={e => e.target.style.color = tk.text}
-                onMouseLeave={e => e.target.style.color = tk.breadcrumbLink}
+                className="cursor-pointer transition-colors duration-200"
+                style={{ color: 'var(--breadcrumb-link)' }}
+                onMouseEnter={e => e.target.style.color = 'var(--text)'}
+                onMouseLeave={e => e.target.style.color = 'var(--breadcrumb-link)'}
                 onClick={() => setActiveSubcat(null)}
-              >
-                {sectionInfo.label}
-              </span>
-              <ChevronRight size={11} color={tk.textFaint} />
-              <span style={{ color: tk.breadcrumbActive }}>{activeSubcat}</span>
+              >{sectionInfo.label}</span>
+              <ChevronRight size={11} style={{ color: 'var(--text-faint)' }} />
+              <span style={{ color: 'var(--breadcrumb-active)' }}>{activeSubcat}</span>
             </>
           ) : (
-            <span style={{ color: tk.breadcrumbActive }}>{sectionInfo.label}</span>
+            <span style={{ color: 'var(--breadcrumb-active)' }}>{sectionInfo.label}</span>
           )}
         </nav>
 
-        {/* ── Список подкатегорий ── */}
+        {/* ── Subcategory list ── */}
         {!activeSubcat && (
-          <div style={{ maxWidth: 800, margin: '0 auto', padding: '0 24px 80px' }}>
-            <h1 style={{ textAlign: 'center', fontSize: 22, fontWeight: 500, letterSpacing: '0.08em', color: tk.text, marginTop: 16, marginBottom: 48 }}>
+          <div className="max-w-[800px] mx-auto px-6 pb-20">
+            <h1 className="text-center text-[22px] font-medium tracking-[0.08em] mt-4 mb-12" style={{ color: 'var(--text)' }}>
               {sectionInfo.label}
             </h1>
 
             {loading ? (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '80px 0', color: tk.textFaint }}>
-                <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
-                <span style={{ fontSize: 13, letterSpacing: '0.1em' }}>Загружаем...</span>
-                <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+              <div className="flex items-center justify-center gap-3 py-20" style={{ color: 'var(--text-faint)' }}>
+                <Loader2 size={18} className="animate-spin" />
+                <span className="text-sm tracking-[0.1em]">Загружаем...</span>
               </div>
             ) : (
               <div style={{ columns: 3, columnGap: 64 }}>
                 {subcatsToShow.map(cat => (
-                  <div key={cat} style={{ breakInside: 'avoid', marginBottom: 20 }}>
+                  <div key={cat} className="mb-5" style={{ breakInside: 'avoid' }}>
                     <button
                       onClick={() => setActiveSubcat(cat)}
-                      style={{
-                        background: 'none', border: 'none', cursor: 'pointer',
-                        textAlign: 'left', width: '100%', padding: 0,
-                        fontFamily: 'inherit',
-                      }}
+                      className="bg-transparent border-none cursor-pointer text-left w-full p-0"
+                      style={{ fontFamily: serif }}
                     >
                       <span
-                        style={{ fontSize: 15, color: tk.subcatText, transition: 'color 0.2s', letterSpacing: '0.03em', display: 'block' }}
-                        onMouseEnter={e => e.target.style.color = tk.subcatHover}
-                        onMouseLeave={e => e.target.style.color = tk.subcatText}
-                      >
-                        {cat}
-                      </span>
+                        className="text-[15px] tracking-wide block transition-colors duration-200"
+                        style={{ color: 'var(--subcat-text)' }}
+                        onMouseEnter={e => e.target.style.color = 'var(--subcat-hover)'}
+                        onMouseLeave={e => e.target.style.color = 'var(--subcat-text)'}
+                      >{cat}</span>
                     </button>
                   </div>
                 ))}
@@ -440,34 +395,29 @@ export default function CategoryPage() {
           </div>
         )}
 
-        {/* ── Товары подкатегории ── */}
+        {/* ── Product grid ── */}
         {activeSubcat && (
-          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px 80px' }}>
-
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, marginBottom: 32 }}>
-              <h1 style={{ fontSize: 22, fontWeight: 500, letterSpacing: '0.08em', color: tk.text, margin: 0 }}>
+          <div className="max-w-[1200px] mx-auto px-6 pb-20">
+            <div className="flex items-center justify-between mt-4 mb-8">
+              <h1 className="text-[22px] font-medium tracking-[0.08em] m-0" style={{ color: 'var(--text)' }}>
                 {activeSubcat}
               </h1>
               <button
                 onClick={() => setActiveSubcat(null)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  fontSize: 11, letterSpacing: '0.1em',
-                  color: tk.textFaint, border: 'none', background: 'none',
-                  cursor: 'pointer', fontFamily: 'inherit', transition: 'color 0.2s',
-                }}
-                onMouseEnter={e => e.currentTarget.style.color = tk.text}
-                onMouseLeave={e => e.currentTarget.style.color = tk.textFaint}
+                className="flex items-center gap-1.5 text-[11px] tracking-[0.1em] border-none bg-transparent cursor-pointer transition-colors duration-200"
+                style={{ color: 'var(--text-faint)', fontFamily: serif }}
+                onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--text-faint)'}
               >
                 <X size={12} /> Все категории
               </button>
             </div>
 
-            {/* Счётчик */}
-            <div style={{ fontSize: 11, color: tk.textFaint, letterSpacing: '0.04em', marginBottom: 16 }}>
+            {/* Counter */}
+            <div className="text-[11px] tracking-wider mb-4" style={{ color: 'var(--text-faint)' }}>
               {loading ? (
-                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> Загружаем товары...
+                <span className="flex items-center gap-2">
+                  <Loader2 size={12} className="animate-spin" /> Загружаем товары...
                 </span>
               ) : error ? (
                 <span style={{ color: '#c0392b' }}>Ошибка: {error}</span>
@@ -476,12 +426,7 @@ export default function CategoryPage() {
               )}
             </div>
 
-            <ProductGrid
-              products={subcatProducts}
-              loading={loading}
-              error={error}
-              onBack={() => setActiveSubcat(null)}
-            />
+            <ProductGrid products={subcatProducts} loading={loading} error={error} onBack={() => setActiveSubcat(null)} />
           </div>
         )}
       </div>
