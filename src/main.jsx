@@ -16,6 +16,8 @@ import CartCheckout from './pages/CartCheckout.jsx';
 import OrderConfirmed from './pages/OrderConfirmed.jsx';
 import AdminPanel from './pages/AdminPanel.jsx';
 import AdminLogin from './pages/AdminLogin.jsx';
+import SelfieAboutPage from './pages/About.jsx';
+import FAQPage from './pages/FAQPage.jsx';
 
 const router = createBrowserRouter([
   {
@@ -44,6 +46,14 @@ const router = createBrowserRouter([
   },{
      path: "/order-confirmed",
     element: <OrderConfirmed />,
+    
+  },{
+     path: "/about",
+    element: <SelfieAboutPage />,
+    
+  },{
+     path: "/faq",
+    element: <FAQPage/>,
     
   },{
      path: "/admin/login",

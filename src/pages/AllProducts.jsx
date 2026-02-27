@@ -407,12 +407,7 @@ function FavoritesDrawer({ open, onClose }) {
             <button style={{ width: '100%', background: tk.btnPrimary, color: tk.btnPrimaryText, border: 'none', padding: '14px 0', fontSize: 12, letterSpacing: '0.12em', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
               <ShoppingCart size={15} /> {t.addAllToCart}
             </button>
-             <GoogleOAuthProvider clientId="285018621048-3t4r6du53df4kaofav0hatqjmd0taove.apps.googleusercontent.com">
-                        <button className="icon-btn" onClick={() => setOpen(true)} style={{ color:nIcon, transition:'color 0.35s' }}>
-                          <User size={18}/>
-                        </button>
-                        {open && <GoogleAuth onClose={() => setOpen(false)} />}
-                      </GoogleOAuthProvider>
+            
           </div>
         )}
       </div>
@@ -474,7 +469,7 @@ const [open1, setOpen1] = useState(false)
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }} onClick={() => onNavClick(t.navItems[0])}>
         <Link to="/" style={{ display:'flex', alignItems:'center', gap:6, textDecoration:'none', flexShrink:0 }}>
          <div>
-          <img className="w-[130px] h-[150px]" src="https://selfiestore.uz/static/62890302-3250-4096-b833-b364f5232082.png" alt="" />
+          <img className="w-32.5 h-37.5" src="https://selfiestore.uz/static/62890302-3250-4096-b833-b364f5232082.png" alt="" />
          </div>
         </Link>
       </div>

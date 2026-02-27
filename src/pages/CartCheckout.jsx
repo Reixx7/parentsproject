@@ -301,7 +301,7 @@ export default function CartCheckout() {
       }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', flexShrink: 0 }}>
            <div>
-          <img className="w-[130px] h-[150px]" src="https://selfiestore.uz/static/62890302-3250-4096-b833-b364f5232082.png" alt="" />
+          <img className="w-32.5 h-37.5" src="https://selfiestore.uz/static/62890302-3250-4096-b833-b364f5232082.png" alt="" />
          </div>
         </Link>
 

@@ -191,7 +191,7 @@ const [open1, setOpen1] = useState(false)
       <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => navigate('/products')}>
          <Link to="/" style={{ display:'flex', alignItems:'center', gap:6, textDecoration:'none', flexShrink:0 }}>
          <div>
-          <img className="w-[130px] h-[150px]" src="https://selfiestore.uz/static/62890302-3250-4096-b833-b364f5232082.png" alt="" />
+          <img className="w-32.5 h-37.5" src="https://selfiestore.uz/static/62890302-3250-4096-b833-b364f5232082.png" alt="" />
          </div>
         </Link>
       </div>
@@ -245,7 +245,7 @@ const [open1, setOpen1] = useState(false)
         <Home        size={18} className="cursor-pointer" onClick={() => navigate('/')} />
           <Search size={18} style={{ cursor: 'pointer' }} onClick={onSearchOpen} />
         <Heart       size={18} className="cursor-pointer" />
-        <ShoppingBag size={18} className="cursor-pointer" />
+       <Link to="/cart"><ShoppingBag size={18} className="cursor-pointer" /></Link>
        <GoogleOAuthProvider clientId="285018621048-3t4r6du53df4kaofav0hatqjmd0taove.apps.googleusercontent.com">
                    <button className="icon-btn" onClick={() => setOpen1(true)} style={{ color: t.icon, transition:'color 0.35s' }}>
                      <User size={18}/>
@@ -490,7 +490,7 @@ export default function CategoryPage() {
 
           {/* ── Subcategory list ── */}
           {!activeSubcat && (
-            <div className="max-w-[800px] mx-auto px-6 pb-20">
+            <div className="max-w-200 mx-auto px-6 pb-20">
               <h1 className="text-center text-[22px] font-medium tracking-[0.08em] mt-4 mb-12" style={{ color: 'var(--text)' }}>
                 {sectionInfo.label}
               </h1>
@@ -498,7 +498,7 @@ export default function CategoryPage() {
               {loading ? (
                 <div className="flex items-center justify-center gap-3 py-20" style={{ color: 'var(--text-faint)' }}>
                   <Loader2 size={18} className="animate-spin" />
-                  <span className="text-sm tracking-[0.1em]">{t.loading}</span>
+                  <span className="text-sm tracking-widest">{t.loading}</span>
                 </div>
               ) : (
                 <div style={{ columns: 3, columnGap: 64 }}>
@@ -525,14 +525,14 @@ export default function CategoryPage() {
 
           {/* ── Product grid ── */}
           {activeSubcat && (
-            <div className="max-w-[1200px] mx-auto px-6 pb-20">
+            <div className="max-w-300 mx-auto px-6 pb-20">
               <div className="flex items-center justify-between mt-4 mb-8">
                 <h1 className="text-[22px] font-medium tracking-[0.08em] m-0" style={{ color: 'var(--text)' }}>
                   {activeSubcat}
                 </h1>
                 <button
                   onClick={handleClearSubcat}
-                  className="flex items-center gap-1.5 text-[11px] tracking-[0.1em] border-none bg-transparent cursor-pointer transition-colors duration-200"
+                  className="flex items-center gap-1.5 text-[11px] tracking-widest border-none bg-transparent cursor-pointer transition-colors duration-200"
                   style={{ color: 'var(--text-faint)', fontFamily: serif }}
                   onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
                   onMouseLeave={e => e.currentTarget.style.color = 'var(--text-faint)'}

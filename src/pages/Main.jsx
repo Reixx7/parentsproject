@@ -4,6 +4,8 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import GoogleAuth from "../pages/GoogleAuth";
 import { Link } from "react-router-dom";
 import herobg from "../assets/swiper-container.png"
+import main1 from "../assets/main1.png"
+import main2 from "../assets/main2.png"
 // ─── HERO BACKGROUND IMAGE ────────────────────────────────────────────────────
 // Замени на путь к своей фотографии. Примеры:
 //   const HERO_BG = "/images/hero.jpg"
@@ -62,6 +64,8 @@ const translations = {
       onlineOnly:    "ТОЛЬКО ОНЛАЙН",
       sale:          "SALE",
       newItems:      "НОВИНКИ",
+      about:         "О НАС",
+      faq:           "ВОПРОСЫ",
     },
     nav_routes: {
       main:          "/",
@@ -72,6 +76,8 @@ const translations = {
       onlineOnly:    "/category/tolko-onlayn",
       sale:          "/category/sale",
       newItems:      "/category/novinki",
+      about:         "/about",
+      faq:           "/faq",
     },
     hero: { subtitle: "*BAHOR" },
     banner: {
@@ -298,6 +304,8 @@ const translations = {
       onlineOnly:    "ONLINE ONLY",
       sale:          "SALE",
       newItems:      "NEW IN",
+      about:         "ABOUT US",
+      faq:           "FAQ",
     },
     nav_routes: {
       main:          "/",
@@ -308,6 +316,8 @@ const translations = {
       onlineOnly:    "/category/tolko-onlayn",
       sale:          "/category/sale",
       newItems:      "/category/novinki",
+      about:         "/about",
+      faq:           "/faq",
     },
     hero: { subtitle: "*BAHOR" },
     banner: {
@@ -901,23 +911,48 @@ export default function SelfiePage() {
       {/* ══════════════════════════════════════════════════════════════════════
           PROMO BANNERS
       ══════════════════════════════════════════════════════════════════════ */}
-      <section style={{ padding:'0 24px 48px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-        <div className="promo-wrap" style={{ position:'relative', aspectRatio:'1', overflow:'hidden', cursor:'pointer', background: dark?'linear-gradient(135deg,#2a1520,#1a0f18)':'linear-gradient(135deg,#f2e0da,#e8d0c8)' }}>
-          <div style={{ position:'absolute', top:'25%', left:'20%', width:'55%', height:'60%', borderRadius:'50%', background: dark?'rgba(180,80,100,0.1)':'rgba(220,140,120,0.3)', filter:'blur(40px)' }}/>
-          <div style={{ position:'absolute', bottom:32, left:32 }}>
-            <div style={{ fontSize:26, fontWeight:600, letterSpacing:'0.12em', color: dark?'#f0ede8':'#2a1510', lineHeight:1 }}>{t.banners.onlineOnly}</div>
-          </div>
-          <div className="promo-ov"/>
-        </div>
-        <div className="promo-wrap" style={{ position:'relative', aspectRatio:'1', overflow:'hidden', cursor:'pointer', background: dark?'linear-gradient(135deg,#1a1a20,#111118)':'linear-gradient(135deg,#e0dbd5,#ccc8c0)' }}>
-          <div style={{ position:'absolute', top:'20%', right:'15%', width:'50%', height:'55%', borderRadius:'50%', background: dark?'rgba(120,120,150,0.1)':'rgba(180,175,165,0.4)', filter:'blur(50px)' }}/>
-          <div style={{ position:'absolute', bottom:32, right:32, textAlign:'right' }}>
-            <div style={{ fontSize:36, fontWeight:600, letterSpacing:'0.1em', color: dark?'#f0ede8':'#1a1a1a', lineHeight:1 }}>{t.banners.discounts}</div>
-            <div style={{ fontSize:14, fontWeight:300, letterSpacing:'0.2em', color: dark?'rgba(240,237,232,0.55)':'rgba(26,26,26,0.5)', marginTop:6 }}>{t.banners.discountsSub}</div>
-          </div>
-          <div className="promo-ov"/>
-        </div>
-      </section>
+      <section className="px-6 pb-12 grid grid-cols-2 gap-3">
+
+  {/* Баннер 1 — ТОЛЬКО ОНЛАЙН */}
+  <div className={`relative overflow-hidden cursor-pointer aspect-square group ${dark ? 'bg-gradient-to-br from-[#2a1520] to-[#1a0f18]' : 'bg-gradient-to-br from-[#f2e0da] to-[#e8d0c8]'}`}>
+    <img
+      src={main1}
+      alt="Main Banner 1"
+      className="absolute inset-0 w-full h-full object-cover block transition-transform duration-500 group-hover:scale-105"
+    />
+    {/* затемнение снизу */}
+    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+    {/* текст */}
+    <div className="absolute bottom-6 left-6">
+      <div className={`text-xl font-bold tracking-[0.12em] text-white leading-tight`}>
+        {t.banners.onlineOnly}
+      </div>
+    </div>
+    <div className="promo-ov" />
+  </div>
+
+  {/* Баннер 2 — СКИДКИ */}
+  <div className={`relative overflow-hidden cursor-pointer aspect-square group ${dark ? 'bg-gradient-to-br from-[#1a1a20] to-[#111118]' : 'bg-gradient-to-br from-[#e0dbd5] to-[#ccc8c0]'}`}>
+    <img
+      src={main2}
+      alt="Main Banner 2"
+      className="absolute inset-0 w-full h-full object-cover block transition-transform duration-500 group-hover:scale-105"
+    />
+    {/* затемнение снизу */}
+    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+    {/* текст */}
+    <div className="absolute bottom-6 right-6 text-right">
+      <div className="text-xl font-bold tracking-[0.12em] text-white leading-tight">
+        {t.banners.discounts}
+      </div>
+      <div className="text-xs font-light tracking-[0.22em] text-white/70 mt-1">
+        {t.banners.discountsSub}
+      </div>
+    </div>
+    <div className="promo-ov" />
+  </div>
+
+</section>
 
       {/* ══════════════════════════════════════════════════════════════════════
           FOOTER
