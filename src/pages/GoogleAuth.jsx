@@ -113,7 +113,7 @@ export default function GoogleAuth({ onClose }) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/40 flex items-center justify-center z-100"
+      className="fixed h-full w-full inset-0 bg-black/40 flex items-center justify-center  z-100"
       onClick={e => e.target === e.currentTarget && onClose?.()}
     >
       <div className="bg-white w-full max-w-120 min-h-125 rounded flex flex-col relative px-10 pt-8 pb-10 animate-[fadeUp_0.25s_ease_both] max-sm:px-5 max-sm:pt-6 max-sm:pb-7 max-sm:rounded-none max-sm:min-h-screen">
